@@ -4,10 +4,10 @@ import argparse
 import os
 import os.path as osp
 
-import fcn
+import torch
+import fcn 
 import numpy as np
 import skimage.io
-import torch
 from torch.autograd import Variable
 import torchfcn
 import tqdm
