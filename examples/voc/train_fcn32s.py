@@ -10,6 +10,7 @@ import subprocess
 import torch
 import yaml
 
+import sys; sys.path.append('/home/linuxnme/Documents/pytorch-fcn')
 import torchfcn
 
 

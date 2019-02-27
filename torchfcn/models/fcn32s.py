@@ -5,9 +5,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-import pdb
-
-
 # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/surgery.py
 def get_upsampling_weight(in_channels, out_channels, kernel_size):
     """Make a 2D bilinear kernel suitable for upsampling"""
@@ -112,7 +109,6 @@ class FCN32s(nn.Module):
 
     def forward(self, x):
         h = x
-        pdb.set_trace()
         h = self.relu1_1(self.conv1_1(h))
         h = self.relu1_2(self.conv1_2(h))
         h = self.pool1(h)
