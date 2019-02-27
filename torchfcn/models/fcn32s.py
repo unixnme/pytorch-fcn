@@ -140,8 +140,7 @@ class FCN32s(nn.Module):
 
         h = self.score_fr(h)
 
-        h = self.upscore(h)
-        h = h[:, :, 19:19 + x.size()[2], 19:19 + x.size()[3]].contiguous()
+        h = torch.nn.functional.interpolate(h, x.shape[2:], mode='bilinear')
 
         return h
 
