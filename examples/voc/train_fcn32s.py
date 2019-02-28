@@ -29,6 +29,8 @@ def get_parameters(model, bias=False):
         nn.MaxPool2d,
         nn.Dropout2d,
         nn.Sequential,
+        nn.ModuleList,
+        nn.AdaptiveAvgPool2d,
         torchfcn.models.FCN32s,
         torchfcn.models.FCN16s,
         torchfcn.models.FCN8s,
@@ -36,7 +38,10 @@ def get_parameters(model, bias=False):
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
             if bias:
-                yield m.bias
+                if m.bias is not None:
+                    yield m.bias
+                else:
+                    continue
             else:
                 yield m.weight
         elif isinstance(m, nn.ConvTranspose2d):
@@ -44,6 +49,8 @@ def get_parameters(model, bias=False):
             if bias:
                 assert m.bias is None
         elif isinstance(m, modules_skipped):
+            continue
+        elif '_PyramidPoolingModule' in str(m):
             continue
         else:
             raise ValueError('Unexpected module: %s' % str(m))
