@@ -4,6 +4,7 @@ import fcn
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class _PyramidPoolingModule(nn.Module):
     def __init__(self, in_dim, reduction_dim, setting):
@@ -110,8 +111,8 @@ class FCN32s(nn.Module):
         self.drop7 = nn.Dropout2d()
 
         # psp	
-        self.ppm = _PyramidPoolingModule(4096, 512, (1,2,3,6))
-        self.score_fr = nn.Conv2d(4096, n_class, 1) # ceil(x/32)
+        self.ppm = _PyramidPoolingModule(4096, 1024, (1,2,3,6))
+        self.score_fr = nn.Conv2d(2*4096, n_class, 1) # ceil(x/32)
         # ceil(x/32)*32 + 32
 
     def forward(self, x):
@@ -145,6 +146,7 @@ class FCN32s(nn.Module):
         h = self.relu7(self.fc7(h))
         h = self.drop7(h)
 
+        h = self.ppm(h)
         h = self.score_fr(h)
 
         h = torch.nn.functional.interpolate(h, x.shape[2:], mode='bilinear')
