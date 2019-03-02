@@ -112,7 +112,14 @@ class FCN32s(nn.Module):
 
         # psp	
         self.ppm = _PyramidPoolingModule(4096, 1024, (1,2,3,6))
-        self.score_fr = nn.Conv2d(2*4096, n_class, 1) # ceil(x/32)
+        self.final = nn.Sequential(
+            nn.Conv2d(2*4096, 512, kernel_size=3, padding=1, bias=False),
+            #nn.BatchNorm2d(512, momentum=.95),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.1),
+            nn.Conv2d(512, n_class, kernel_size=1)
+        )
+        #self.score_fr = nn.Conv2d(2*4096, n_class, 1) # ceil(x/32)
         # ceil(x/32)*32 + 32
 
         self._initialize_weights()
@@ -161,7 +168,7 @@ class FCN32s(nn.Module):
         h = self.drop7(h)
 
         h = self.ppm(h)
-        h = self.score_fr(h)
+        h = self.final(h)
 
         h = torch.nn.functional.interpolate(h, x.shape[2:], mode='bilinear')
 

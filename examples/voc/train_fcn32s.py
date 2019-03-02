@@ -31,6 +31,7 @@ def get_parameters(model, bias=False):
         nn.Sequential,
         nn.ModuleList,
         nn.AdaptiveAvgPool2d,
+        nn.Dropout,
         torchfcn.models.FCN32s,
         torchfcn.models.FCN16s,
         torchfcn.models.FCN8s,
