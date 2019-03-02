@@ -9,6 +9,7 @@ import fcn
 import numpy as np
 import skimage.io
 from torch.autograd import Variable
+import sys; sys.path.append('/home/linuxnme/Documents/pytorch-fcn')
 import torchfcn
 import tqdm
 

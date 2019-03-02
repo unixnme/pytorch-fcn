@@ -20,7 +20,7 @@ class _PyramidPoolingModule(nn.Module):
         x_size = x.size()
         out = [x]
         for f in self.features:
-            out.append(F.upsample(f(x), x_size[2:], mode='bilinear'))
+            out.append(F.interpolate(f(x), x_size[2:], mode='bilinear'))
         out = torch.cat(out, 1)
         return out
 
@@ -32,17 +32,6 @@ class PSPNet(nn.Module):
         resnet = models.resnet50(pretrained)
         self.layer0 = nn.Sequential(resnet.conv1, resnet.bn1, resnet.relu, resnet.maxpool)
         self.layer1, self.layer2, self.layer3, self.layer4 = resnet.layer1, resnet.layer2, resnet.layer3, resnet.layer4
-
-        for n, m in self.layer3.named_modules():
-            if 'conv2' in n:
-                m.dilation, m.padding, m.stride = (2, 2), (2, 2), (1, 1)
-            elif 'downsample.0' in n:
-                m.stride = (1, 1)
-        for n, m in self.layer4.named_modules():
-            if 'conv2' in n:
-                m.dilation, m.padding, m.stride = (4, 4), (4, 4), (1, 1)
-            elif 'downsample.0' in n:
-                m.stride = (1, 1)
 
         self.ppm = _PyramidPoolingModule(2048, 512, (1, 2, 3, 6))
         self.final = nn.Sequential(
@@ -59,13 +48,9 @@ class PSPNet(nn.Module):
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
-        if self.training and self.use_aux:
-            aux = self.aux_logits(x)
         x = self.layer4(x)
         x = self.ppm(x)
         x = self.final(x)
-        if self.training and self.use_aux:
-            return F.upsample(x, x_size[2:], mode='bilinear'), F.upsample(aux, x_size[2:], mode='bilinear')
-        return F.upsample(x, x_size[2:], mode='bilinear')
+        return F.interpolate(x, x_size[2:], mode='bilinear')
 
 

@@ -32,12 +32,13 @@ def get_parameters(model, bias=False):
         nn.Sequential,
         nn.ModuleList,
         nn.AdaptiveAvgPool2d,
+        nn.BatchNorm2d,
         torchfcn.models.FCN32s,
         torchfcn.models.FCN16s,
         torchfcn.models.FCN8s,
     )
     for m in model.modules():
-        if isinstance(m, (nn.Conv2d, nn.BatchNorm2d)):
+        if isinstance(m, nn.Conv2d):
             if bias:
                 if m.bias is not None:
                     yield m.bias
@@ -89,6 +90,7 @@ def main():
 
     now = datetime.datetime.now()
     args.out = osp.join(here, 'logs', now.strftime('%Y%m%d_%H%M%S.%f'))
+    print('\nwriting to %s\n' % args.out)
 
     os.makedirs(args.out)
     with open(osp.join(args.out, 'config.yaml'), 'w') as f:
@@ -130,11 +132,7 @@ def main():
     # 3. optimizer
 
     optim = torch.optim.SGD(
-        [
-            {'params': get_parameters(model, bias=False)},
-            {'params': get_parameters(model, bias=True),
-             'lr': args.lr * 2, 'weight_decay': 0},
-        ],
+        model.final.parameters(),
         lr=args.lr,
         momentum=args.momentum,
         weight_decay=args.weight_decay)
