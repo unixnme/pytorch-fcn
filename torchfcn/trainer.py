@@ -164,10 +164,10 @@ class Trainer(object):
                         osp.join(self.out, 'model_best.pth.tar'))
 
         if training:
-            self.model.train()
+            self.model.train(False)
 
-    def train_epoch(self):
-        self.model.train()
+    def train_epoch(self, training):
+        self.model.train(training)
 
         n_class = len(self.train_loader.dataset.class_names)
 
@@ -181,8 +181,6 @@ class Trainer(object):
 
             if self.iteration % self.interval_validate == 0:
                 self.validate()
-
-            assert self.model.training
 
             if self.cuda:
                 data, target = data.cuda(), target.cuda()
@@ -220,11 +218,11 @@ class Trainer(object):
             if self.iteration >= self.max_iter:
                 break
 
-    def train(self):
+    def train(self, training=True):
         max_epoch = int(math.ceil(1. * self.max_iter / len(self.train_loader)))
         for epoch in tqdm.trange(self.epoch, max_epoch,
                                  desc='Train', ncols=80):
             self.epoch = epoch
-            self.train_epoch()
+            self.train_epoch(training)
             if self.iteration >= self.max_iter:
                 break
