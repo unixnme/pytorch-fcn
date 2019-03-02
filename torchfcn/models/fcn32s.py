@@ -89,23 +89,7 @@ class FCN32s(nn.Module):
         self.drop7 = nn.Dropout2d()
 
         self.score_fr = nn.Conv2d(4096, n_class, 1) # ceil(x/32)
-        self.upscore = nn.ConvTranspose2d(n_class, n_class, 64, stride=32,
-                                          bias=False)
         # ceil(x/32)*32 + 32
-
-        self._initialize_weights()
-
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                m.weight.data.zero_()
-                if m.bias is not None:
-                    m.bias.data.zero_()
-            if isinstance(m, nn.ConvTranspose2d):
-                assert m.kernel_size[0] == m.kernel_size[1]
-                initial_weight = get_upsampling_weight(
-                    m.in_channels, m.out_channels, m.kernel_size[0])
-                m.weight.data.copy_(initial_weight)
 
     def forward(self, x):
         h = x
